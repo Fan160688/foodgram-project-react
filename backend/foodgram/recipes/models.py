@@ -1,0 +1,110 @@
+from django.db import models
+from users.models import User
+
+
+class Tag(models.Model):
+    """Модель тега"""
+    name = models.CharField(max_length=200, verbose_name='Название')
+    color = models.CharField(
+        max_length=7,
+        default="#ffffff",
+        verbose_name='Цветовой HEX-код')
+    slug = models.SlugField(unique=True, verbose_name='Slug')
+
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+        ordering = ('pk',)
+
+    def __str__(self):
+        return self.name
+
+
+class Ingredient(models.Model):
+    """Модель ингредиента"""
+    name = models.CharField(max_length=200, verbose_name='Название')
+    measurement_unit = models.CharField(
+                    max_length=20,
+                    verbose_name='Единицы измерения')
+
+    class Meta:
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+        ordering = ['name',]
+
+    def __str__(self):
+        return self.name
+
+
+class Recipe(models.Model):
+    """Модель рецептов"""
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        related_name='recipe',
+        verbose_name='Автор')
+    name = models.CharField(max_length=200, verbose_name='Название')
+    image = models.ImageField(
+        upload_to='posts/',
+        null=True,
+        blank=True,
+        verbose_name='Картинка')
+    text = models.TextField(verbose_name='Текстовое описание')
+    ingredients = models.ManyToManyField(
+        Ingredient,
+        through='RecipeIngredient')
+    tags = models.ManyToManyField(
+        Tag,
+        verbose_name='Теги',
+        related_name='recipes')
+    cooking_time = models.SmallIntegerField(
+        verbose_name='Время приготовления в минутах')
+    pub_date = models.DateTimeField(
+        'Дата публикации', auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
+        ordering = ('-pub_date', )
+
+
+class RecipeIngredient(models.Model):
+    """Промежуточная модель"""
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    amount = models.SmallIntegerField(verbose_name='Количество')
+
+
+class Favorite(models.Model):
+    "Модель списка избранного"
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='favorites',
+        verbose_name='Пользователь')
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='favorites',
+        verbose_name='Рецепт')
+
+    class Meta:
+        verbose_name = 'Список избранных рецептов'
+        verbose_name_plural = 'Список избранных рецептов'
+
+
+class ShoppingCart(models.Model):
+    "Модель списка покупок"
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='shopping_cart',
+        verbose_name='Пользователь')
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='shopping_cart',
+        verbose_name='Рецепт')
+
+    class Meta:
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Список покупок'

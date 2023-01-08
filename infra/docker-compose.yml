@@ -7,6 +7,17 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ../frontend/:/app/result_build/
+  web:
+    image: fan160688/api_yamdb:v16.12.2022
+    restart: always   
+    volumes:
+      - static_value:/app/static/
+      - media_value:/app/media/
+    depends_on:
+      - db
+    env_file:
+      - ./.env
+
   nginx:
     image: nginx:1.19.3
     ports:
