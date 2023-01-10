@@ -1,15 +1,13 @@
 from django.shortcuts import get_object_or_404
+from djoser.serializers import SetPasswordSerializer
 from rest_framework import permissions, status, viewsets
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
-from rest_framework_simplejwt.tokens import AccessToken
-from django.contrib.auth.hashers import make_password
-from djoser.serializers import SetPasswordSerializer
 
-from .models import User, Subscribe
-#from .permissions import IsAuthorOrStaffOrReadOnly
-from .serializers import UserSerializer, UserCreateSerializer, SubscribeSerializer
+from .models import Subscribe, User
+from .serializers import (SubscribeSerializer, UserCreateSerializer,
+                          UserSerializer)
 
 
 def check_required_fields(request, fields):
@@ -145,5 +143,4 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         Subscribe.objects.create(
             user=user, author=author)
-        #serializer.save(user=user, author=author)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

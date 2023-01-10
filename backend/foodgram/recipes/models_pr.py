@@ -69,7 +69,8 @@ class Tag(models.Model):
         max_length=200,
         validators=[
             RegexValidator(
-                regex='^[-a-zA-Z0-9_]+$', message='Используйте латинские буквы, цифры, знаки _, -'
+                regex='^[-a-zA-Z0-9_]+$',
+                message='Используйте латинские буквы, цифры, знаки _, -'
             ),
             MaxLengthValidator(
                 limit_value=200, message='Длина названия не более 200 знаков'
@@ -161,7 +162,7 @@ class IngredientAmount(models.Model):
         )
 
     def __str__(self):
-        return f'{self.ingredient.name}, {self.amount} {self.ingredient.measurement_unit}'
+        return f'{self.ingredient.name} - {self.amount}'
 
 
 @receiver(pre_save, sender=IngredientAmount)

@@ -1,11 +1,8 @@
-import datetime as dt
-from recipes.models import Ingredient, Tag, Recipe, RecipeIngredient, Favorite, ShoppingCart
-from rest_framework import serializers
-from rest_framework.generics import get_object_or_404
-from rest_framework.validators import UniqueValidator
-from users.serializers import UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from users.models import User
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
+from rest_framework import serializers
+from users.serializers import UserSerializer
 
 
 class IngredientSerializer(serializers.Serializer):
@@ -101,13 +98,9 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return ingredients
 
     def create(self, validated_data):
-        #ingredients = validated_data.pop('ingredients')
-        #tags = validated_data.pop('tags')
         return Recipe.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
-        #ingredients = validated_data.pop('ingredients')
-        #tags = validated_data.pop('tags')
         instance.name = validated_data.get('name', instance.name)
         instance.image = validated_data.get('image', instance.image)
         instance.text = validated_data.get('text', instance.text)

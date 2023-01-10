@@ -1,31 +1,21 @@
-import io
-from django.shortcuts import render
-from api.filters import RecipeFilter
-from api.serializers import (IngredientSerializer, TagSerializer,
-                             RecipeIngredientSerializer, RecipeGetSerializer,
-                             RecipeWriteSerializer, RecipeSmollSerializer)
-from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
 from datetime import datetime
-from django.db.models import Avg
-from rest_framework.status import HTTP_400_BAD_REQUEST
-from django.db.models.aggregates import Count, Sum
-from django.shortcuts import get_object_or_404
-from rest_framework import filters, status, viewsets, mixins, permissions
-from rest_framework.decorators import action, api_view
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
-from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
-from recipes.models import Ingredient, Tag, Recipe, RecipeIngredient, Favorite, ShoppingCart
-from users.models import User
-from django_filters.rest_framework import DjangoFilterBackend
-from reportlab.pdfgen import canvas
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from django.http import HttpResponse
 
-from api.permissions import (AdminModeratorAuthorPermission, IsAdmin,
-                             IsAdminUserOrReadOnly)
+from api.filters import RecipeFilter
+from api.permissions import IsAdminUserOrReadOnly
+from api.serializers import (IngredientSerializer, RecipeGetSerializer,
+                             RecipeSmollSerializer, RecipeWriteSerializer,
+                             TagSerializer)
+from django.db.models.aggregates import Sum
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
+from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
 
 class IngredientsViewSet(mixins.ListModelMixin,

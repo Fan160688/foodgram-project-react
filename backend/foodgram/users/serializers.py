@@ -1,7 +1,7 @@
-from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
-from .models import User, Subscribe
 from recipes.models import Recipe
+from rest_framework import serializers
+
+from .models import Subscribe, User
 
 
 class SignupSerializer(serializers.ModelSerializer):
