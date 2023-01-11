@@ -3,7 +3,7 @@ from datetime import datetime
 from api.filters import RecipeFilter
 from api.permissions import IsAdminUserOrReadOnly
 from api.serializers import (IngredientSerializer, RecipeGetSerializer,
-                             RecipeSmollSerializer, RecipeWriteSerializer,
+                             RecipeSmallSerializer, RecipeWriteSerializer,
                              TagSerializer)
 from django.db.models.aggregates import Sum
 from django.http import HttpResponse
@@ -18,9 +18,14 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 
-class IngredientsViewSet(mixins.ListModelMixin,
-                         mixins.RetrieveModelMixin,
-                         viewsets.GenericViewSet):
+class GetViewSet(mixins.ListModelMixin,
+                 mixins.RetrieveModelMixin,
+                 viewsets.GenericViewSet):
+    """ViewSet с методом GET """
+    pass
+
+
+class IngredientsViewSet(GetViewSet):
     "Список ингредиентов"
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
@@ -30,9 +35,7 @@ class IngredientsViewSet(mixins.ListModelMixin,
     pagination_class = None
 
 
-class TagsViewSet(mixins.ListModelMixin,
-                  mixins.RetrieveModelMixin,
-                  viewsets.GenericViewSet):
+class TagsViewSet(GetViewSet):
     "Список тэгов"
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
@@ -54,6 +57,23 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+    def add_method(self, model, user, pk):
+        if model.objects.filter(user=user, recipe__id=pk).exists():
+            return Response({'errors': 'Рецепт уже добавлен!'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        recipe = get_object_or_404(Recipe, id=pk)
+        model.objects.create(user=user, recipe=recipe)
+        serializer = RecipeSmallSerializer(recipe)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete_method(self, model, user, pk):
+        obj = model.objects.filter(user=user, recipe__id=pk)
+        if obj.exists():
+            obj.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'errors': 'Рецепт уже удален!'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
     @action(
         detail=True,
         methods=['post', 'delete'],
@@ -62,22 +82,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def favorite(self, request, pk):
         """ Добавление/удаление рецептов в избранном """
         if request.method == 'POST':
-            if Favorite.objects.filter(
-                    user=request.user,
-                    recipe__id=pk).exists():
-                return Response({'errors': 'Рецепт уже добавлен!'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            recipe = get_object_or_404(Recipe, id=pk)
-            Favorite.objects.create(user=request.user, recipe=recipe)
-            serializer = RecipeSmollSerializer(recipe)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return self.add_method(Favorite, request.user, pk)
         else:
-            obj = Favorite.objects.filter(user=request.user, recipe__id=pk)
-            if obj.exists():
-                obj.delete()
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            return Response({'errors': 'Рецепт уже удален!'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return self.delete_method(Favorite, request.user, pk)
 
     @action(
         detail=True,
@@ -87,22 +94,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def shopping_cart(self, request, pk):
         """ Добавление/удаление рецептов в списке покупок """
         if request.method == 'POST':
-            if ShoppingCart.objects.filter(
-                    user=request.user,
-                    recipe__id=pk).exists():
-                return Response({'errors': 'Рецепт уже добавлен!'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            recipe = get_object_or_404(Recipe, id=pk)
-            Favorite.objects.create(user=request.user, recipe=recipe)
-            serializer = RecipeSmollSerializer(recipe)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return self.add_method(ShoppingCart, request.user, pk)
         else:
-            obj = ShoppingCart.objects.filter(user=request.user, recipe__id=pk)
-            if obj.exists():
-                obj.delete()
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            return Response({'errors': 'Рецепт уже удален!'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return self.delete_method(ShoppingCart, request.user, pk)
 
     @action(
         detail=False,
@@ -120,7 +114,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit'
-        ).annotate(amount=Sum('amount'))
+        ).annotate(ingredient_value=Sum('amount'))
 
         today = datetime.today()
         shopping_list = (

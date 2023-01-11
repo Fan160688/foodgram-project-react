@@ -8,7 +8,7 @@ services:
       - ./.env
 
   backend:
-    build: ../backend/foodgram
+    build: fan160688/foodgram:v9.01.2023
     restart: always   
     volumes:
       - static_value:/app/static/

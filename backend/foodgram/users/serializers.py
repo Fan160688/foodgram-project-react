@@ -4,20 +4,6 @@ from rest_framework import serializers
 from .models import Subscribe, User
 
 
-class SignupSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = ('username', 'email',)
-
-    def validate_username(self, value):
-        if value == 'me':
-            raise serializers.ValidationError(
-                'Имя пользователя "me" не разрешено.'
-            )
-        return value
-
-
 class SubscribeRecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -27,6 +13,26 @@ class SubscribeRecipeSerializer(serializers.ModelSerializer):
 
 class UserCreateSerializer(serializers.ModelSerializer):
     "Сериализатор создания пользователей"
+
+    def validate_username(self, username):
+        if username == 'me':
+            raise serializers.ValidationError(
+                'Недопустимое имя пользователя!'
+            )
+
+    def validate_first_name(self, first_name):
+        if not first_name.istitle():
+            raise serializers.ValidationError(
+                'Имя должно быть с заглавной буквы!'
+            )
+        return first_name
+
+    def validate_last_name(self, last_name):
+        if not last_name.istitle():
+            raise serializers.ValidationError(
+                'Фамилия должна быть с заглавной буквы!'
+            )
+        return last_name
 
     class Meta:
         model = User
