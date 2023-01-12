@@ -1,5 +1,6 @@
-from recipes.models import Recipe
 from rest_framework import serializers
+
+from recipes.models import Recipe
 
 from .models import Subscribe, User
 
@@ -19,6 +20,11 @@ class UserCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Недопустимое имя пользователя!'
             )
+        if not username.islower():
+            raise serializers.ValidationError(
+                'username должен состоять из строчных букв!'
+            )
+        return username
 
     def validate_first_name(self, first_name):
         if not first_name.istitle():

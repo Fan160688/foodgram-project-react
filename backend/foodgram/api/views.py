@@ -1,28 +1,23 @@
 from datetime import datetime
 
-from api.filters import RecipeFilter
-from api.permissions import IsAdminUserOrReadOnly
-from api.serializers import (IngredientSerializer, RecipeGetSerializer,
-                             RecipeSmallSerializer, RecipeWriteSerializer,
-                             TagSerializer)
 from django.db.models.aggregates import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingCart, Tag)
-from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-
-class GetViewSet(mixins.ListModelMixin,
-                 mixins.RetrieveModelMixin,
-                 viewsets.GenericViewSet):
-    """ViewSet с методом GET """
-    pass
+from api.filters import RecipeFilter
+from api.mixins import GetViewSet
+from api.permissions import IsAdminUserOrReadOnly
+from api.serializers import (IngredientSerializer, RecipeGetSerializer,
+                             RecipeSmallSerializer, RecipeWriteSerializer,
+                             TagSerializer)
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
 
 
 class IngredientsViewSet(GetViewSet):
@@ -83,8 +78,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         """ Добавление/удаление рецептов в избранном """
         if request.method == 'POST':
             return self.add_method(Favorite, request.user, pk)
-        else:
-            return self.delete_method(Favorite, request.user, pk)
+        return self.delete_method(Favorite, request.user, pk)
 
     @action(
         detail=True,
@@ -95,8 +89,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         """ Добавление/удаление рецептов в списке покупок """
         if request.method == 'POST':
             return self.add_method(ShoppingCart, request.user, pk)
-        else:
-            return self.delete_method(ShoppingCart, request.user, pk)
+        return self.delete_method(ShoppingCart, request.user, pk)
 
     @action(
         detail=False,
@@ -124,7 +117,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         shopping_list += '\n'.join([
             f'- {ingredient["ingredient__name"]} '
             f'({ingredient["ingredient__measure"]})'
-            f' - {ingredient["amount"]}'
+            f' - {ingredient["ingredient_value"]}'
             for ingredient in ingredients
         ])
         shopping_list += f'\n\nFoodgram ({today:%Y})'

@@ -1,7 +1,8 @@
 from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers
+
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
-from rest_framework import serializers
 from users.serializers import UserSerializer
 
 
@@ -80,16 +81,17 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('id', 'ingredients', 'author', 'image',
-                  'name', 'text', 'tags', 'is_favorited',
-                  'is_in_shopping_cart', 'cooking_time',)
+                  'name', 'text', 'tags', 'cooking_time',)
         model = Recipe
 
     def create_ingredients(self, recipe, ingredients):
         for ingredient in ingredients:
-            RecipeIngredient.objects.create(
-                recipe=recipe,
-                ingredient_id=ingredient.get('id'),
-                amount=ingredient.get('amount'), )
+            RecipeIngredient.objects.bulk_create([
+                RecipeIngredient(
+                    recipe=recipe,
+                    ingredient_id=ingredient.get('id'),
+                    amount=ingredient.get('amount'),)
+            ])
 
     def validate(self, data):
         ingredients = data['ingredients']

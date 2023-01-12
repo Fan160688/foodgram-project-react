@@ -26,7 +26,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=['GET'],
-        permission_classes=[permissions.IsAuthenticated,]
+        permission_classes=[permissions.IsAuthenticated]
     )
     def me(self, request):
         """ Текущий пользователь """
@@ -53,7 +53,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=False,
-        permission_classes=[permissions.IsAuthenticated,]
+        permission_classes=[permissions.IsAuthenticated]
     )
     def subscriptions(self, request):
         """ На кого подписан пользователь """

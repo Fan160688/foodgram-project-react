@@ -1,4 +1,5 @@
 import django_filters as filters
+
 from recipes.models import Recipe
 from users.models import User
 
