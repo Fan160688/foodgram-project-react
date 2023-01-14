@@ -62,7 +62,7 @@ jobs:
           script: |
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram:v9.01.2023
             sudo docker pull ${{ secrets.USER }}/frontend:v2
-            cd foodgram/
+            # cd foodgram/
             sudo docker compose stop
             sudo docker compose rm -f backend
       - name: docker-compose up
@@ -73,7 +73,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
-            cd foodgram/
+            # cd foodgram/
             touch .env
             echo KEY="${{ secrets.SECRET_KEY }}" >> .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
