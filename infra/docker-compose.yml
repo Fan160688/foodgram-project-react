@@ -19,8 +19,9 @@ services:
       - ./.env
 
   frontend:
-    image: fan160688/frontend:v14.01.2023
-    restart: always 
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
