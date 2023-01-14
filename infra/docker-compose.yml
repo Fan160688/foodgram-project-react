@@ -19,7 +19,7 @@ services:
       - ./.env
 
   frontend:
-    image: fan160688/frontend:v14.01.2023
+    image: fan160688/frontend:v2
     restart: always   
     volumes:
       - ../frontend/:/app/result_build/
