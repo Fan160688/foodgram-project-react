@@ -19,7 +19,7 @@ jobs:
         # установка flake8 и его плагинов
         pip install flake8 pep8-naming flake8-broken-line flake8-return flake8-isort
         # установка зависимостей
-        pip install -r api_yamdb/requirements.txt 
+        pip install -r backend/foodgram/requirements.txt 
     - name: Test with flake8 and pytests
       run: |
         # запуск проверки проекта по flake8
@@ -44,9 +44,9 @@ jobs:
       - name: Push to Docker Hub
         uses: docker/build-push-action@v2
         with:
-          context: api_yamdb
+          context: backend/
           push: true
-          tags: fan160688/api_yamdb:v16.12.2022      
+          tags: fan160688/foodgram:v9.01.2023      
 
   deploy:
     runs-on: ubuntu-latest
@@ -60,7 +60,7 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         passphrase: ${{ secrets.PASSPHRASE }}
         script: |
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/api_yamdb:v16.12.2022
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram:v9.01.2023
           sudo docker compose stop
           sudo docker compose rm web
           touch .env
