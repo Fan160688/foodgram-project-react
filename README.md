@@ -1,6 +1,8 @@
 # Проект Foodgram «Продуктовый помощник»
 
+
 ![Build Status](https://github.com/fan160688/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
+
 
 ## Описание проекта
 
