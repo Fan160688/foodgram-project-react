@@ -10,6 +10,7 @@ djangorestframework==3.12.4
 djangorestframework-simplejwt==5.2.0
 drf_extra_fields==3.4.1
 djoser 
+python-dotenv==0.20.0
 gunicorn==20.0.4
 psycopg2-binary==2.8.6
 idna==3.3
