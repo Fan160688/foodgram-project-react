@@ -6,6 +6,9 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env
+    ports:
+      - '5432:5432'
+    restart: always
 
   backend:
     image: fan160688/foodgram:v9.01.2023
@@ -22,8 +25,7 @@ services:
     image: fan160688/frontend:v2
     volumes:
       - ../frontend/:/app/result_build/
-    depends_on:
-      - backend
+    
       
   nginx:
     image: nginx:1.19.3
@@ -35,14 +37,12 @@ services:
       - ../docs/:/usr/share/nginx/html/api/docs/
       - static_value:/var/html/static/
       - media_value:/var/html/media/
-      
-      
     depends_on:
       - frontend
       
       
 volumes:
   # Новые тома
-  db_data:
+  postgres_data:
   static_value:
   media_value:
