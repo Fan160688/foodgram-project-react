@@ -14,10 +14,10 @@ djangorestframework-simplejwt==4.8.0
 djoser
 drf-extra-fields==3.4.0
 idna==3.3
-importlib-metadata
+importlib-metadata==1.7.0
 itypes==1.2.0
 Jinja2==3.1.2
-Markdown==3.4.1
+python-dotenv
 MarkupSafe==2.1.1
 mccabe==0.7.0
 oauthlib==3.2.0
