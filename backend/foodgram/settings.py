@@ -1,14 +1,17 @@
 
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 
 load_dotenv()
+env_path = Path('../infra')/'.env'
+load_dotenv(dotenv_path=env_path)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-SECRET_KEY = os.getenv('SECRET_KEY', default='secret_key')
+SECRET_KEY = 'u7g78go(!+7(gt0p5$_y00)gjhi!i4cj&hpva4=q42+)p6-d46'
 
 DEBUG = True
 
@@ -22,13 +25,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'api',
+    'recipe',
+    'users',
     'rest_framework',
     'rest_framework.authtoken',
-    'django_filters',
     'djoser',
-    'users',
-    'api',
-    'recipes',
+    'django_filters',
+    'colorfield'
 ]
 
 MIDDLEWARE = [
@@ -60,8 +64,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
-AUTH_USER_MODEL = 'users.User'
-
 
 DATABASES = {
     'default': {
@@ -74,12 +76,21 @@ DATABASES = {
     }
 }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+AUTH_USER_MODEL = 'users.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'],
+
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     }
-}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -96,12 +107,22 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DJOSER = {
+    'SERIALIZERS': {
+        'user': 'api.serializers.CustomUserSerializer',
+        'user_create': 'api.serializers.CustomUserCreateSerializer',
+        'current_user': 'api.serializers.CustomUserSerializer',
+    },
+    'PERMISSIONS': {
+        'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
+        'user_list': ['rest_framework.permissions.AllowAny'],
+    },
+    'HIDE_USERS': False,
+}
 
 LANGUAGE_CODE = 'ru-RU'
 
-TIME_ZONE = 'Europe/Moscow'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -114,28 +135,3 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-    ],
-
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-    ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 6,
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend',
-    ],
-}
-
-# DJOSER = {
-#     'LOGIN_FIELD': 'email',
-#     'SEND_ACTIVATION_EMAIL': False,
-#     'HIDE_USERS': False,
-#     'PERMISSIONS': {
-#         'user_list': ['rest_framework.permissions.AllowAny'],
-#         'user': ['rest_framework.permissions.IsAuthenticated'],
-#     },
-# }
