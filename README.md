@@ -23,6 +23,7 @@ source venv/scripts/activate
 ```
 source venv/bin/activate
 ```
+
 Установить зависимости из файла requirements.txt:
 
 ```
