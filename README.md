@@ -13,6 +13,7 @@ git clone https:
 foodgram-project-react
 Cоздать и активировать виртуальное окружение:
 
+
 ```
 python -m venv venv
 ```
