@@ -30,7 +30,7 @@ from .shop_cart import create_shopping_cart
 
 
 class CurrentUserViewSet(viewsets.GenericViewSet):
-    """Вьюсет для работы с обьектами класса User и подписки на авторов"""
+    """Получение списка пользователей и создание пользователей"""
 
     queryset = User.objects.all()
     serializer_class = FollowSerializer
@@ -74,7 +74,7 @@ class CurrentUserViewSet(viewsets.GenericViewSet):
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    """Вьюсет работы с обьектами класса Tag"""
+    """Список тэгов"""
 
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
@@ -83,7 +83,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
-    """Вьюсет для работы с обьектами класса Ingredien"""
+    """Список ингредиентов"""
 
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
@@ -94,7 +94,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    """ Контроллер рецептов. """
+    """ Представление рецептов """
     queryset = Recipe.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter

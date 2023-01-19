@@ -31,7 +31,7 @@ class CurrentUserSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Tag"""
+    """Сериализатор тегов"""
 
     class Meta:
         model = Tag
@@ -39,7 +39,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Ingredient"""
+    """Сериализатор списка ингредиентов"""
 
     class Meta:
         model = Ingredient
@@ -70,7 +70,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Recipe"""
+    """Сериализатор получения рецепта"""
 
     author = CurrentUserSerializer(read_only=True)
     ingredients = serializers.SerializerMethodField()
@@ -121,7 +121,7 @@ class AddIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
-    """Сериализатор для создания и изменения рецептов"""
+    """Сериализатор создания и редактирования рецепта"""
 
     author = CurrentUserSerializer(read_only=True)
     ingredients = AddIngredientSerializer(many=True)
