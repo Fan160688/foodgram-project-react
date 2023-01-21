@@ -12,7 +12,7 @@ class IngredientSerializer(serializers.Serializer):
     "Сериализатор списка ингредиентов"
     class Meta:
         model = Ingredient
-        fields = '__all__'
+        fields = ('id', 'name', 'measure')
 
 
 class TagSerializer(serializers.Serializer):
