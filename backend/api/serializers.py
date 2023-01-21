@@ -8,14 +8,14 @@ from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
 from users.serializers import CustomUserSerializer
 
 
-class IngredientSerializer(serializers.Serializer):
+class IngredientSerializer(serializers.ModelSerializer):
     "Сериализатор списка ингредиентов"
     class Meta:
         model = Ingredient
-        fields = ('id', 'name', 'measure')
+        fields = ('id', 'name', 'measurement_unit')
 
 
-class TagSerializer(serializers.Serializer):
+class TagSerializer(serializers.ModelSerializer):
     "Сериализатор тегов"
     class Meta:
         model = Tag
