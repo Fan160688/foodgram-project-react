@@ -22,13 +22,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'api',
+    'recipe',
+    'users',
     'rest_framework',
     'rest_framework.authtoken',
-    'django_filters',
     'djoser',
-    'users',
-    'api',
-    'recipes',
+    'django_filters',
+    'colorfield'
 ]
 
 MIDDLEWARE = [
@@ -116,7 +117,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+        'rest_framework.permissions.AllowAny',
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
