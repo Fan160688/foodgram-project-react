@@ -25,7 +25,8 @@ class IngredientsViewSet(GetViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     #filter_backends = [IngredientSearchFilter]
-    filterset_class = IngredientSearchFilter
+    filter_backends = (IngredientSearchFilter)
+    search_fields = ('name', )
     permission_classes = (AllowAny,)
     pagination_class = None
 
