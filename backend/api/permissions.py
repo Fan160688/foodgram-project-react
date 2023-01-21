@@ -1,16 +1,26 @@
-from rest_framework.permissions import SAFE_METHODS, BasePermission
+from rest_framework import permissions
 
 
-class IsAuthorOrReadOnlyPermission(BasePermission):
-    """
-    Разрешает анонимному пользователю только безопасные запросы.
-    Полный доступ предоставляется только автору объекта и
-    суперпользователю Джанго.
-    """
+class IsAdminUserOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if request.user.is_authenticated:
+            return request.user.is_admin
+        return False
 
-    def has_object_permission(self, request, view, obj):
+
+class IsAuthorOrReadOnly(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        user = request.user
         return (
-            request.method in SAFE_METHODS
-            or obj.author == request.user
-            or request.user.is_superuser
+            user.is_authenticated and user.is_user
+            or request.method in permissions.SAFE_METHODS
         )
+
+
+class ReadOnly(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        return request.method in permissions.SAFE_METHODS
