@@ -33,10 +33,7 @@ class UserViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
 
-    @action(
-        detail=False,
-        permission_classes=[permissions.IsAuthenticated]
-    )
+    @action(methods=['get'], detail=False)
     def subscriptions(self, request):
         """ На кого подписан пользователь """
         user = request.user
