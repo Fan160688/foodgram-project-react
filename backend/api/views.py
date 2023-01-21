@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from api.filters import RecipeFilter
+from api.filters import RecipeFilter, IngredientFilter
 from api.mixins import GetViewSet
 from api.permissions import IsAdminUserOrReadOnly
 from api.serializers import (IngredientSerializer, RecipeGetSerializer,
