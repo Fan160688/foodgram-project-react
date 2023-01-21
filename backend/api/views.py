@@ -4,13 +4,13 @@ from django.db.models.aggregates import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, permissions, status, viewsets
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from api.filters import RecipeFilter
+from api.filters import RecipeFilter, IngredientSearchFilter
 from api.mixins import GetViewSet
 from api.permissions import IsAdminUserOrReadOnly
 from api.serializers import (IngredientSerializer, RecipeGetSerializer,
@@ -24,8 +24,8 @@ class IngredientsViewSet(GetViewSet):
     "Список ингредиентов"
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (filters.SearchFilter,)
-    filterset_class = ('name',)
+    filter_backends = (DjangoFilterBackend, IngredientSearchFilter)
+    search_fields = ('^name', )
     permission_classes = (AllowAny,)
     pagination_class = None
 
