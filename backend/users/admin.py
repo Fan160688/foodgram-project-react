@@ -1,15 +1,22 @@
 from django.contrib import admin
 
-from .models import User
+from .models import User, Subscribe
 
 
-class UserAdmin(admin.ModelAdmin):
-    list_display = (
-        'id', 'username', 'email',
-        'first_name', 'last_name',)
-    search_fields = ('email', 'username', 'first_name', 'last_name')
-    list_filter = ('email', 'first_name')
+@admin.register(User)
+class UsersAdmin(admin.ModelAdmin):
+    list_display = ('username', 'email',
+                    'first_name', 'last_name'
+                    )
+    search_fields = ('email', 'username')
+    list_filter = ('email', 'username')
+    ordering = ('username', )
     empty_value_display = '-пусто-'
 
 
-admin.site.register(User, UserAdmin)
+@admin.register(Subscribe)
+class SubscribeAdmin(admin.ModelAdmin):
+    list_display = ('user', 'author')
+    list_display_links = ('user', )
+    search_fields = ('user', )
+    empty_value_display = '-пусто-'
