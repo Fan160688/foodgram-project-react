@@ -12,7 +12,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from api.filters import RecipeFilter, IngredientSearchFilter
 from api.mixins import GetViewSet
-from api.permissions import IsAdminUserOrReadOnly
+from api.permissions import IsAuthorOrAdminOrReadOnly
 from api.serializers import (IngredientSerializer, RecipeGetSerializer,
                              RecipeSmallSerializer, RecipeWriteSerializer,
                              TagSerializer)
@@ -42,7 +42,7 @@ class TagsViewSet(GetViewSet):
 class RecipesViewSet(viewsets.ModelViewSet):
     "Представление рецептов"
     queryset = Recipe.objects.all()
-    #permission_classes = (IsAuthorOrAdminOrReadOnly, )
+    permission_classes = (IsAuthorOrAdminOrReadOnly, )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
@@ -71,6 +71,23 @@ class RecipesViewSet(viewsets.ModelViewSet):
     #     serializer = RecipeSmallSerializer(recipe)
     #     return Response(serializer.data, status=status.HTTP_201_CREATED)
     
+    def add_method(self, model, user, pk):
+        if model.objects.filter(user=user, recipe__id=pk).exists():
+            return Response({'errors': 'Рецепт уже добавлен!'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        recipe = get_object_or_404(Recipe, id=pk)
+        model.objects.create(user=user, recipe=recipe)
+        serializer = RecipeSmallSerializer(recipe)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete_method(self, model, user, pk):
+        obj = model.objects.filter(user=user, recipe__id=pk)
+        if obj.exists():
+            obj.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'errors': 'Рецепт уже удален!'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
     @staticmethod
     def delete_method(self, model, user, pk):
         obj = model.objects.filter(user=user, recipe__id=pk)
