@@ -70,6 +70,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     #     model.objects.create(user=user, recipe=recipe)
     #     serializer = RecipeSmallSerializer(recipe)
     #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
     @staticmethod
     def delete_method(self, model, user, pk):
         obj = model.objects.filter(user=user, recipe__id=pk)

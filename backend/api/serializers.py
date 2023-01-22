@@ -1,4 +1,4 @@
-from django.db import transaction
+from django.db.transaction import atomic
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -85,7 +85,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
     ingredients = AddIngredientRecipeSerializer()
     tags = TagSerializer(read_only=True)
-    image = Base64ImageField()
+    image = Base64ImageField(use_url=True, max_length=None)
 
     class Meta:
         fields = ('id', 'author', 'ingredients', 'tags',
@@ -95,13 +95,29 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def create_ingredients(self, ingredients, recipe):
         RecipeIngredient.objects.bulk_create(
             [RecipeIngredient(
-                ingredient=Ingredient.objects.get(id=ingredient['id']),
+                ingredient=ingredient['ingredient'],
                 recipe=recipe,
-                amount=ingredient['amount']
+                amount=ingredient['amount'],
             ) for ingredient in ingredients]
         )
 
-    @transaction.atomic
+    def validate(self, data):
+        ingredients = self.initial_data.get('ingredients')
+        ingredients_list = []
+        for ingredient in ingredients:
+            ingredient_id = ingredient['id']
+            if ingredient_id in ingredients_list:
+                raise serializers.ValidationError(
+                    'Есть повторяющиеся ингредиенты!'
+                )
+            ingredients_list.append(ingredient_id)
+        if data['cooking_time'] <= 0:
+            raise serializers.ValidationError(
+                'Время приготовления должно быть больше 0!'
+            )
+        return data
+    
+    @atomic
     def create(self, validated_data):
         """ Создание рецепта """
         tags = validated_data.pop('tags')
@@ -114,7 +130,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         recipe.tags.set(tags)
         return recipe
 
-    @transaction.atomic
+    @atomic
     def update(self, instance, validated_data):
         """ Изменение рецепта """
         tags = validated_data.pop('tags')
