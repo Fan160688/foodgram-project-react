@@ -104,21 +104,21 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             ) for ingredient in ingredients]
         )
 
-    def validate(self, data):
-        ingredients = self.initial_data.get('ingredients')
-        ingredients_list = []
-        for ingredient in ingredients:
-            ingredient_id = ingredient['id']
-            if ingredient_id in ingredients_list:
-                raise serializers.ValidationError(
-                    'Есть повторяющиеся ингредиенты!'
-                )
-            ingredients_list.append(ingredient_id)
-        if data['cooking_time'] <= 0:
-            raise serializers.ValidationError(
-                'Время приготовления должно быть больше 0!'
-            )
-        return data
+    # def validate(self, data):
+    #     ingredients = self.initial_data.get('ingredients')
+    #     ingredients_list = []
+    #     for ingredient in ingredients:
+    #         ingredient_id = ingredient['id']
+    #         if ingredient_id in ingredients_list:
+    #             raise serializers.ValidationError(
+    #                 'Есть повторяющиеся ингредиенты!'
+    #             )
+    #         ingredients_list.append(ingredient_id)
+    #     if data['cooking_time'] <= 0:
+    #         raise serializers.ValidationError(
+    #             'Время приготовления должно быть больше 0!'
+    #         )
+    #     return data
     
     @atomic
     def create(self, validated_data):
