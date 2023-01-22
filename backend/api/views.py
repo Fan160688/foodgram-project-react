@@ -18,8 +18,7 @@ from api.serializers import (IngredientSerializer, RecipeGetSerializer,
                              TagSerializer, ShoppingCartSerializer)
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
-
-from .shop_cart import create_shopping_cart
+                            
 
 
 class IngredientsViewSet(GetViewSet):
@@ -119,45 +118,46 @@ class RecipesViewSet(viewsets.ModelViewSet):
         methods=['GET'],
         permission_classes=[permissions.IsAuthenticated]
     )
-    # def download_shopping_cart(self, request):
-    #     """ Скачивание файла со списком покупок """
-    #     user = request.user
-    #     if not user.shopping_cart.exists():
-    #         return Response(status=HTTP_400_BAD_REQUEST)
-
-    #     ingredients = RecipeIngredient.objects.filter(
-    #         recipe__shopping_cart__user=request.user
-    #     ).values(
-    #         'ingredient__name',
-    #         'ingredient__measurement_unit'
-    #     ).annotate(amount=Sum('amount'))
-
-    #     today = datetime.today()
-    #     shopping_cart = (
-    #         f'Список покупок для: {user.get_full_name()}\n\n'
-    #         f'Дата: {today:%Y-%m-%d}\n\n'
-    #     )
-    #     shopping_cart += '\n'.join([
-    #         f'- {ingredient["ingredient__name"]} '
-    #         f'({ingredient["ingredient__measure"]})'
-    #         f' - {ingredient["ingredient_value"]}'
-    #         for ingredient in ingredients
-    #     ])
-    #     shopping_cart += f'\n\nFoodgram ({today:%Y})'
-
-    #     filename = f'{user.username}_shopping_list.txt'
-    #     response = HttpResponse(shopping_cart, content_type='text/plain')
-    #     response['Content-Disposition'] = f'attachment; filename={filename}'
-    #     return response
     def download_shopping_cart(self, request):
+        """ Скачивание файла со списком покупок """
+        user = request.user
+        if not user.shopping_cart.exists():
+            return Response(status=HTTP_400_BAD_REQUEST)
+
+        ingredients = RecipeIngredient.objects.filter(
+            recipe__shopping_cart__user=request.user
+        ).values(
+            'ingredient__name',
+            'ingredient__measurement_unit'
+        ).annotate(amount=Sum('amount'))
+
+        today = datetime.today()
         shopping_cart = (
-            RecipeIngredient.objects.filter(
-                recipe_parent__shop_list__user=request.user
-            ).values(
-                'ingredient__name',
-                'ingredient__measurement_unit',
-            ).order_by(
-                'ingredient__name'
-            ).annotate(ingredient_value=Sum('amount'))
+            f'Список покупок для: {user.get_full_name()}\n\n'
+            f'Дата: {today:%Y-%m-%d}\n\n'
         )
-        return create_shopping_cart(shopping_cart)
+        shopping_cart += '\n'.join([
+            f'- {ingredient["ingredient__name"]} '
+            f'({ingredient["ingredient__measure"]})'
+            f' - {ingredient["ingredient_value"]}'
+            for ingredient in ingredients
+        ])
+        shopping_cart += f'\n\nFoodgram ({today:%Y})'
+
+        filename = f'{user.username}_shopping_list.txt'
+        response = HttpResponse(shopping_cart, content_type='text/plain')
+        response['Content-Disposition'] = f'attachment; filename={filename}'
+        return response
+
+    # def download_shopping_cart(self, request):
+    #     shopping_cart = (
+    #          RecipeIngredient.objects.filter(
+    #             recipe_parent__shop_list__user=request.user
+    #         ).values(
+    #             'ingredient__name',
+    #             'ingredient__measurement_unit',
+    #         ).order_by(
+    #             'ingredient__name'
+    #         ).annotate(ingredient_value=Sum('amount'))
+    #     )
+    #     return create_shopping_cart(shopping_cart)
