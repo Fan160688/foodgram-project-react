@@ -50,8 +50,8 @@ class AddIngredientRecipeSerializer(serializers.ModelSerializer):
 class RecipeGetSerializer(serializers.ModelSerializer):
     "Сериализатор получения рецепта"
     author = CustomUserSerializer(read_only=True)
-    ingredients = IngredientSerializer()
-    tags = TagSerializer(read_only=True)
+    ingredients = serializers.SerializerMethodField()
+    tags = TagSerializer(many=True)
     image = Base64ImageField()
     is_favorited = serializers.SerializerMethodField(
         method_name='get_is_favorited')
@@ -59,12 +59,11 @@ class RecipeGetSerializer(serializers.ModelSerializer):
         method_name='get_is_in_shopping_cart')
 
     class Meta:
+        model = Recipe
         fields = ('id', 'ingredients', 'author', 'image',
                   'name', 'text', 'tags', 'is_favorited',
-                  'is_in_shopping_cart', 'cooking_time',
-                  'pub_date',)
-        model = Recipe
-
+                  'is_in_shopping_cart', 'cooking_time')
+    
     def get_ingredients(self, obj):
         ingredients = RecipeIngredient.objects.filter(recipe=obj)
         return RecipeIngredientSerializer(ingredients, many=True).data
