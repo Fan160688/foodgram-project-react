@@ -95,7 +95,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         return self.delete_method(
                 request=request,
                 pk=pk,
-                serializers=FavoriteSerializer)
+                model=Favorite)
 
     @action(
         detail=True,
@@ -111,7 +111,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         return self.delete_method(
                 request,
                 pk,
-                serializers=ShoppingCartSerializer)
+                model=ShoppingCart)
 
     @action(
         detail=False,
