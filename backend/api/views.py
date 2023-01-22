@@ -55,7 +55,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     #     serializer.save(author=self.request.user)
 
     @staticmethod
-    def post_method_for_actions(request, pk, serializers):
+    def add_method(request, pk, serializers):
         """ Метод добавления """
         data = {'user': request.user.id, 'recipe': pk}
         serializer = serializers(data=data, context={'request': request})
@@ -71,26 +71,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
     #     serializer = RecipeSmallSerializer(recipe)
     #     return Response(serializer.data, status=status.HTTP_201_CREATED)
     
-    def add_method(self, model, user, pk):
-        if model.objects.filter(user=user, recipe__id=pk).exists():
-            return Response({'errors': 'Рецепт уже добавлен!'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        recipe = get_object_or_404(Recipe, id=pk)
-        model.objects.create(user=user, recipe=recipe)
-        serializer = RecipeSmallSerializer(recipe)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    def delete_method(self, model, user, pk):
-        obj = model.objects.filter(user=user, recipe__id=pk)
-        if obj.exists():
-            obj.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({'errors': 'Рецепт уже удален!'},
-                        status=status.HTTP_400_BAD_REQUEST)
-
     @staticmethod
-    def delete_method(self, model, user, pk):
-        obj = model.objects.filter(user=user, recipe__id=pk)
+    def delete_method(request, pk, model):
+        obj = model.objects.filter(user=request.user, recipe__id=pk)
         if obj.exists():
             obj.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -100,18 +83,17 @@ class RecipesViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=['post', 'delete'],
-        permission_classes=[IsAuthenticated]
+        #permission_classes=[IsAuthenticated]
     )
     def favorite(self, request, pk):
         """ Добавление/удаление рецептов в избранном """
         if request.method == 'POST':
-            return self.add_method(Favorite, request.user, pk)
-        return self.delete_method(Favorite, request.user, pk)
+            return self.add_method(request=request, pk=pk, model=Favorite)
+        return self.delete_method(request=request, pk=pk, model=Favorite)
 
     @action(
         detail=True,
         methods=['post', 'delete'],
-        permission_classes=[IsAuthenticated]
     )
     def shopping_cart(self, request, pk):
         """ Добавление/удаление рецептов в списке покупок """
