@@ -87,8 +87,6 @@ class RecipeIngredient(models.Model):
                 name='recipe_ingredient_unique',
             )
         ]
-        verbose_name = 'Ингредиент в рецепте'
-        verbose_name_plural = 'Ингредиенты в рецепте'
 
 
 class Favorite(models.Model):

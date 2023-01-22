@@ -12,7 +12,7 @@ from .serializers import (SubscribeSerializer,
 class UserViewSet(viewsets.ModelViewSet):
     "Получение списка пользователей и создание пользователей"
     queryset = User.objects.all()
-    
+
     def get_serializer_class(self):
         if self.action == 'set_password':
             return SetPasswordSerializer
@@ -71,3 +71,4 @@ class UserViewSet(viewsets.ModelViewSet):
         Subscribe.objects.create(
             user=user, author=author)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+        

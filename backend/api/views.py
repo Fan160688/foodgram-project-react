@@ -83,7 +83,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=['post', 'delete'],
-        #permission_classes=[IsAuthenticated]
     )
     def favorite(self, request, pk):
         """ Добавление/удаление рецептов в избранном """
@@ -129,22 +128,22 @@ class RecipesViewSet(viewsets.ModelViewSet):
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit'
-        ).annotate(ingredient_value=Sum('amount'))
+        ).annotate(amount=Sum('amount'))
 
         today = datetime.today()
-        shopping_list = (
+        shopping_cart = (
             f'Список покупок для: {user.get_full_name()}\n\n'
             f'Дата: {today:%Y-%m-%d}\n\n'
         )
-        shopping_list += '\n'.join([
+        shopping_cart += '\n'.join([
             f'- {ingredient["ingredient__name"]} '
             f'({ingredient["ingredient__measure"]})'
             f' - {ingredient["ingredient_value"]}'
             for ingredient in ingredients
         ])
-        shopping_list += f'\n\nFoodgram ({today:%Y})'
+        shopping_cart += f'\n\nFoodgram ({today:%Y})'
 
         filename = f'{user.username}_shopping_list.txt'
-        response = HttpResponse(shopping_list, content_type='text/plain')
+        response = HttpResponse(shopping_cart, content_type='text/plain')
         response['Content-Disposition'] = f'attachment; filename={filename}'
         return response
