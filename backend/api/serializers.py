@@ -88,8 +88,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
 
     class Meta:
-        fields = ('id', 'ingredients', 'author', 'image',
-                  'name', 'text', 'tags', 'cooking_time',)
+        fields = ('id', 'author', 'ingredients', 'tags',
+                  'image', 'name', 'text', 'cooking_time')
         model = Recipe
 
     def create_ingredients(self, ingredients, recipe):

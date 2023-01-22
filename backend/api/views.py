@@ -42,6 +42,7 @@ class TagsViewSet(GetViewSet):
 class RecipesViewSet(viewsets.ModelViewSet):
     "Представление рецептов"
     queryset = Recipe.objects.all()
+    #permission_classes = (IsAuthorOrAdminOrReadOnly, )
     filter_backends = (DjangoFilterBackend,)
     filter_class = RecipeFilter
 
@@ -50,18 +51,26 @@ class RecipesViewSet(viewsets.ModelViewSet):
             return RecipeWriteSerializer
         return RecipeGetSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+    # def perform_create(self, serializer):
+    #     serializer.save(author=self.request.user)
 
-    def add_method(self, model, user, pk):
-        if model.objects.filter(user=user, recipe__id=pk).exists():
-            return Response({'errors': 'Рецепт уже добавлен!'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        recipe = get_object_or_404(Recipe, id=pk)
-        model.objects.create(user=user, recipe=recipe)
-        serializer = RecipeSmallSerializer(recipe)
+    @staticmethod
+    def post_method_for_actions(request, pk, serializers):
+        """ Метод добавления """
+        data = {'user': request.user.id, 'recipe': pk}
+        serializer = serializers(data=data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+    # def add_method(self, model, user, pk):
+    #     if model.objects.filter(user=user, recipe__id=pk).exists():
+    #         return Response({'errors': 'Рецепт уже добавлен!'},
+    #                         status=status.HTTP_400_BAD_REQUEST)
+    #     recipe = get_object_or_404(Recipe, id=pk)
+    #     model.objects.create(user=user, recipe=recipe)
+    #     serializer = RecipeSmallSerializer(recipe)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+    @staticmethod
     def delete_method(self, model, user, pk):
         obj = model.objects.filter(user=user, recipe__id=pk)
         if obj.exists():
