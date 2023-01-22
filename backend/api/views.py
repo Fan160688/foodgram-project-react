@@ -14,8 +14,8 @@ from api.filters import RecipeFilter, IngredientSearchFilter
 from api.mixins import GetViewSet
 from api.permissions import IsAuthorOrAdminOrReadOnly
 from api.serializers import (IngredientSerializer, RecipeGetSerializer,
-                             RecipeSmallSerializer, RecipeWriteSerializer,
-                             TagSerializer)
+                             FavoriteSerializer, RecipeWriteSerializer,
+                             TagSerializer, ShoppingCartSerializer)
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
 
@@ -88,8 +88,14 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def favorite(self, request, pk):
         """ Добавление/удаление рецептов в избранном """
         if request.method == 'POST':
-            return self.add_method(request=request, pk=pk, model=Favorite)
-        return self.delete_method(request=request, pk=pk, model=Favorite)
+            return self.add_method(
+                request=request,
+                pk=pk,
+                serializers=FavoriteSerializer)
+        return self.delete_method(
+                request=request,
+                pk=pk,
+                serializers=FavoriteSerializer)
 
     @action(
         detail=True,
@@ -98,8 +104,14 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def shopping_cart(self, request, pk):
         """ Добавление/удаление рецептов в списке покупок """
         if request.method == 'POST':
-            return self.add_method(ShoppingCart, request.user, pk)
-        return self.delete_method(ShoppingCart, request.user, pk)
+            return self.add_method(
+                request,
+                pk,
+                serializers=ShoppingCartSerializer)
+        return self.delete_method(
+                request,
+                pk,
+                serializers=ShoppingCartSerializer)
 
     @action(
         detail=False,

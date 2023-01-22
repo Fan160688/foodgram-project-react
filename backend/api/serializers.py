@@ -167,6 +167,29 @@ class RecipeSmallSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'name', 'image', 'cooking_time')
 
 
+class FavoriteSerializer(serializers.ModelSerializer):
+    """ Сериализатор избранного """
+    class Meta:
+        model = Favorite
+        fields = ('user', 'recipe')
+
+    def validate(self, data):
+        request = self.context.get('request')
+        if not request or request.user.is_anonymous:
+            return False
+        recipe = data['recipe']
+        if Favorite.objects.filter(user=request.user, recipe=recipe).exists():
+            raise ValidationError({
+                'errors': 'Уже есть в избранном.'
+            })
+        return data
+
+    def to_representation(self, instance):
+        return RecipeSmallSerializer(instance.recipe, context={
+            'request': self.context.get('request')
+        }).data
+
+
 class ShoppingCartSerializer(serializers.ModelSerializer):
     """ Сериализатор списка покупок """
     class Meta:
