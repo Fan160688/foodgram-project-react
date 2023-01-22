@@ -84,25 +84,29 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     "Сериализатор создания и редактирования рецепта"
     author = CustomUserSerializer(read_only=True)
     ingredients = AddIngredientRecipeSerializer()
-    tags = TagSerializer(read_only=True)
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(),
+        many=True,
+    )
     image = Base64ImageField(use_url=True, max_length=None)
 
     class Meta:
+        model = Recipe
         fields = ('id', 'author', 'ingredients', 'tags',
                   'image', 'name', 'text', 'cooking_time')
-        model = Recipe
+        
 
     def create_ingredients(self, ingredients, recipe):
         RecipeIngredient.objects.bulk_create(
             [RecipeIngredient(
-                ingredient=ingredient['ingredient'],
+                ingredient_id=ingredient['id'],
                 recipe=recipe,
                 amount=ingredient['amount'],
             ) for ingredient in ingredients]
         )
 
     def validate(self, data):
-        ingredients = self.initial_data.get('ingredients')
+        ingredients = data['ingredients']
         ingredients_list = []
         for ingredient in ingredients:
             ingredient_id = ingredient['id']

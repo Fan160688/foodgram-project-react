@@ -44,7 +44,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     #permission_classes = (IsAuthorOrAdminOrReadOnly, )
     filter_backends = (DjangoFilterBackend,)
-    filter_class = RecipeFilter
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.action == 'create' or self.action == 'partial_update':
