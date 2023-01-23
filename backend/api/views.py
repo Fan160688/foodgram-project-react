@@ -28,7 +28,6 @@ from .serializers import (
     ShoppingListSerializer,
     TagSerializer
 )
-from .shop_cart import create_shopping_cart
 
 
 class CurrentUserViewSet(viewsets.GenericViewSet):
