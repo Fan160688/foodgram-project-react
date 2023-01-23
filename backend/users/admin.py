@@ -1,22 +1,29 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 
-from .models import User, Subscribe
+from .models import Follow, User
 
 
 @admin.register(User)
-class UsersAdmin(admin.ModelAdmin):
-    list_display = ('username', 'email',
-                    'first_name', 'last_name'
-                    )
-    search_fields = ('email', 'username')
-    list_filter = ('email', 'username')
-    ordering = ('username', )
-    empty_value_display = '-пусто-'
+class UserAdmin(UserAdmin):
+    """Класс настройки раздела пользователей"""
+
+    list_display = (
+        'pk',
+        'username',
+        'email',
+        'first_name',
+        'last_name',
+    )
+    empty_value_display = 'Значение отсутствует'
+    list_filter = ('username', 'email')
+    search_fields = ('username', 'email')
 
 
-@admin.register(Subscribe)
-class SubscribeAdmin(admin.ModelAdmin):
-    list_display = ('user', 'author')
-    list_display_links = ('user', )
-    search_fields = ('user', )
-    empty_value_display = '-пусто-'
+@admin.register(Follow)
+class FollowAdmin(admin.ModelAdmin):
+    """Класс настройки раздела подписки"""
+
+    list_display = ('pk', 'user', 'author')
+    search_fields = ('user', 'author')
+    list_filter = ('user', 'author')
