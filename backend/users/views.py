@@ -46,20 +46,23 @@ class UserViewSet(UserViewSet):
         return self.get_paginated_response(serializer.data)
 
     @action(methods=('POST', 'DELETE'), detail=True)
-    def subscribe(self, request, pk):
+    def subscribe(self, request, id):
         """ Подписаться/отписаться от пользователя """
-        author = get_object_or_404(User, id=pk)
-        if request.method != 'POST':
-            request.user.subscribe.remove(author)
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        if not request.user.subscribe.filter(id=pk).exists():
-            request.user.subscribe.add(author)
-            serializer = self.serializer_class(
-                author, context={'request': request}
+        if request.method == 'POST':
+            serializer = SubscribeSerializer(
+                data={
+                    'user': request.user.id,
+                    'author': get_object_or_404(User, id=id).id
+                },
+                context={'request': request}
             )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(
-            {'errors': 'Вы уже подписаны на данного пользователя'},
-            status=status.HTTP_400_BAD_REQUEST
+        subscription = get_object_or_404(
+            Subscribe,
+            author=get_object_or_404(User, id=id),
+            user=request.user
         )
-        
+        self.perform_destroy(subscription)
+        return Response(status=status.HTTP_204_NO_CONTENT)
