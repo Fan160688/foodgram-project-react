@@ -46,30 +46,20 @@ class UserViewSet(UserViewSet):
         return self.get_paginated_response(serializer.data)
 
     @action(methods=('POST', 'DELETE'), detail=True)
-    def subscribe(self, request, id):
+    def subscribe(self, request, pk):
         """ Подписаться/отписаться от пользователя """
-        user = request.user
-        author = get_object_or_404(User, id=id)
-        if user == author:
-            return Response(
-                {'errors': 'Нельзя подписаться на самого себя!'},
-                status=status.HTTP_400_BAD_REQUEST)
-        if request.method == 'DELETE':
-            object = Subscribe.objects.filter(
-                author=author, user=user).first()
-            if object is None:
-                return Response(
-                    {'errors': 'Вы не подписаны на этого автора!'},
-                    status=status.HTTP_400_BAD_REQUEST)
-            object.delete()
+        author = get_object_or_404(User, id=pk)
+        if request.method != 'POST':
+            request.user.subscribe.remove(author)
             return Response(status=status.HTTP_204_NO_CONTENT)
-        if Subscribe.objects.filter(author=author, user=user).exists():
-            return Response(
-                    {'errors': 'Вы уже подписаны на этого автора!'},
-                    status=status.HTTP_400_BAD_REQUEST)
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        Subscribe.objects.create(
-            user=user, author=author)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if not request.user.subscribe.filter(id=pk).exists():
+            request.user.subscribe.add(author)
+            serializer = self.serializer_class(
+                author, context={'request': request}
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(
+            {'errors': 'Вы уже подписаны на данного пользователя'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
         
