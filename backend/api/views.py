@@ -1,10 +1,14 @@
+from datetime import datetime
+
 from django.db.models import Sum
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from recipes.models import (
     Favorite,
@@ -140,24 +144,32 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def download_shopping_cart(self, request):
+        """ Скачивание файла со списком покупок """
+        user = request.user
+        if not user.shopping_cart.exists():
+            return Response(status=HTTP_400_BAD_REQUEST)
+
+        ingredients = IngredientInRecipe.objects.filter(
+            recipe__shopping_cart__user=request.user
+        ).values(
+            'ingredient__name',
+            'ingredient__measurement_unit'
+        ).annotate(amount=Sum('amount'))
+
+        today = datetime.today()
         shopping_cart = (
-            IngredientInRecipe.objects.filter(
-                recipe_parent__shop_cart__user=request.user
-            ).values(
-                'ingredient_name',
-                'ingredient_measurement',
-            ).order_by(
-                'ingredient_name'
-            ).annotate(ingredient_value=Sum('amount'))
+            f'Список покупок для: {user.get_full_name()}\n\n'
+            f'Дата: {today:%Y-%m-%d}\n\n'
         )
-        return create_shopping_cart(shopping_cart)
+        shopping_cart += '\n'.join([
+            f'- {ingredient["ingredient__name"]} '
+            f'({ingredient["ingredient__measure"]})'
+            f' - {ingredient["ingredient_value"]}'
+            for ingredient in ingredients
+        ])
+        shopping_cart += f'\n\nFoodgram ({today:%Y})'
 
-    @action(detail=True, methods=['post'])
-    def favorite(self, request, pk):
-        return self.post_method_for_actions(
-            request=request, pk=pk, serializers=FavoriteSerializer)
-
-    @favorite.mapping.delete
-    def delete_favorite(self, request, pk):
-        return self.delete_method_for_actions(
-            request=request, pk=pk, model=Favorite)
+        filename = f'{user.username}_shopping_list.txt'
+        response = HttpResponse(shopping_cart, content_type='text/plain')
+        response['Content-Disposition'] = f'attachment; filename={filename}'
+        return response
