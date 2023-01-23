@@ -11,7 +11,6 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from recipes.models import (
-    Favorite,
     Ingredient,
     IngredientInRecipe,
     Recipe,
@@ -22,7 +21,6 @@ from users.models import User
 
 from .filters import IngredientSearchFilter, RecipeFilter
 from .serializers import (
-    FavoriteSerializer,
     FollowSerializer,
     IngredientSerializer,
     RecipeCreateSerializer,
@@ -45,7 +43,7 @@ class CurrentUserViewSet(viewsets.GenericViewSet):
         detail=True,
         permission_classes=(IsAuthenticated,)
     )
-    def subscribe(self, request, pk):
+    def subscrib(self, request, pk):
         author = get_object_or_404(User, id=pk)
         if request.method != 'POST':
             request.user.subscribe.remove(author)
