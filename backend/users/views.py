@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from djoser.serializers import SetPasswordSerializer
+from djoser.views import UserViewSet
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -9,7 +10,7 @@ from .serializers import (SubscribeSerializer,
                           CustomUserSerializer)
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(UserViewSet):
     "Получение списка пользователей и создание пользователей"
     queryset = User.objects.all()
 
