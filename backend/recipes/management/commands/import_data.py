@@ -12,7 +12,8 @@ class Command(BaseCommand):
 
         try:
             with open(
-                f'{settings.BASE_DIR}/foodgram/static/data/ingredients.csv', 'r', encoding='utf-8'
+                f'{settings.BASE_DIR}/foodgram/static/data/ingredients.csv',
+                'r', encoding='utf-8'
             ) as file:
                 reader = csv.DictReader(file)
                 Ingredient.objects.bulk_create(

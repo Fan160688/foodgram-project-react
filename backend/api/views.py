@@ -2,15 +2,14 @@ from datetime import datetime
 
 from django.db.models.aggregates import Sum
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from api.filters import RecipeFilter, IngredientSearchFilter
+from api.filters import RecipeFilter
 from api.mixins import GetViewSet
 from api.permissions import IsAuthorOrAdminOrReadOnly
 from api.serializers import (IngredientSerializer, RecipeGetSerializer,
@@ -18,15 +17,12 @@ from api.serializers import (IngredientSerializer, RecipeGetSerializer,
                              TagSerializer, ShoppingCartSerializer)
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
-                            
 
 
 class IngredientsViewSet(GetViewSet):
     "Список ингредиентов"
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    #filter_backends = [IngredientSearchFilter]
-    #filter_class = IngredientSearchFilter
     filterset_fields = ['name']
     permission_classes = (AllowAny,)
     pagination_class = None
@@ -52,9 +48,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
             return RecipeWriteSerializer
         return RecipeGetSerializer
 
-    # def perform_create(self, serializer):
-    #     serializer.save(author=self.request.user)
-
     @staticmethod
     def add_method(request, pk, serializers):
         """ Метод добавления """
@@ -63,15 +56,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    # def add_method(self, model, user, pk):
-    #     if model.objects.filter(user=user, recipe__id=pk).exists():
-    #         return Response({'errors': 'Рецепт уже добавлен!'},
-    #                         status=status.HTTP_400_BAD_REQUEST)
-    #     recipe = get_object_or_404(Recipe, id=pk)
-    #     model.objects.create(user=user, recipe=recipe)
-    #     serializer = RecipeSmallSerializer(recipe)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+
     @staticmethod
     def delete_method(request, pk, model):
         obj = model.objects.filter(user=request.user, recipe__id=pk)
@@ -148,16 +133,3 @@ class RecipesViewSet(viewsets.ModelViewSet):
         response = HttpResponse(shopping_cart, content_type='text/plain')
         response['Content-Disposition'] = f'attachment; filename={filename}'
         return response
-
-    # def download_shopping_cart(self, request):
-    #     shopping_cart = (
-    #          RecipeIngredient.objects.filter(
-    #             recipe_parent__shop_list__user=request.user
-    #         ).values(
-    #             'ingredient__name',
-    #             'ingredient__measurement_unit',
-    #         ).order_by(
-    #             'ingredient__name'
-    #         ).annotate(ingredient_value=Sum('amount'))
-    #     )
-    #     return create_shopping_cart(shopping_cart)
