@@ -114,7 +114,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit'
-        ).annotate(amount=Sum('amount'))
+        ).annotate(ingredient_value=Sum('amount'))
 
         today = datetime.today()
         shopping_cart = (

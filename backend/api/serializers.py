@@ -64,10 +64,6 @@ class RecipeGetSerializer(serializers.ModelSerializer):
                   'name', 'text', 'tags', 'is_favorited',
                   'is_in_shopping_cart', 'cooking_time')
 
-    def get_ingredients(self, obj):
-        ingredients = RecipeIngredient.objects.filter(recipe=obj)
-        return RecipeIngredientSerializer(ingredients, many=True).data
-
     def get_is_favorited(self, obj):
         request = self.context.get('request')
         if request.user.is_anonymous:
@@ -106,6 +102,39 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 amount=ingredient['amount'],
             ) for ingredient in ingredients]
         )
+
+    def validate(self, data):
+        ingredients = data['ingredients']
+        ingredients_list = []
+        for ingredient in ingredients:
+            ingredient_id = ingredient['id']
+            if ingredient_id in ingredients_list:
+                raise serializers.ValidationError(
+                    'Есть повторяющиеся ингредиенты!'
+                )
+            ingredients_list.append(ingredient_id)
+        tags = data['tags']
+        if not tags:
+            raise serializers.ValidationError(
+                'Нужен хотя бы один тэг для рецепта!')
+        for tag_name in tags:
+            if not Tag.objects.filter(name=tag_name).exists():
+                raise serializers.ValidationError(
+                    f'Тэга {tag_name} не существует!')
+        return data
+
+    def validate_cooking_time(self, cooking_time):
+        if cooking_time < 1:
+            raise serializers.ValidationError(
+                'Время не может быть меньше 1 минуты')
+        return cooking_time
+
+    def validate_ingredients(self, ingredients):
+        if not ingredients:
+            raise serializers.ValidationError(
+                'Должен быть минимум 1 ингредиент'
+            )
+        return ingredients
 
     @atomic
     def create(self, validated_data):
