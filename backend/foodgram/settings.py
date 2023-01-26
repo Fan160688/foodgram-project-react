@@ -1,4 +1,3 @@
-
 import os
 
 from dotenv import load_dotenv
@@ -7,10 +6,11 @@ load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 SECRET_KEY = os.getenv('SECRET_KEY', default='secret_key')
 
+
 DEBUG = False
+
 
 ALLOWED_HOSTS = ['*']
 
@@ -22,14 +22,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'users.apps.UsersConfig',
+    'recipes.apps.RecipesConfig',
     'rest_framework',
     'rest_framework.authtoken',
-    'django_filters',
     'djoser',
-    'users',
-    'api',
-    'recipes',
     'colorfield',
+    'django_filters'
 ]
 
 MIDDLEWARE = [
@@ -61,14 +60,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
-AUTH_USER_MODEL = 'users.User'
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
 
 DATABASES = {
     'default': {
@@ -80,6 +71,13 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT', default='5432')
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -96,18 +94,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-LANGUAGE_CODE = 'ru-RU'
-
+LANGUAGE_CODE = 'ru'
 TIME_ZONE = 'Europe/Moscow'
-
 USE_I18N = True
-
-USE_L10N = True
-
-USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
@@ -123,23 +112,26 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend'],
 
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_PAGINATION_CLASS':
+    'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 6,
 }
 
+AUTH_USER_MODEL = 'users.User'
+
 DJOSER = {
     'LOGIN_FIELD': 'email',
-    'SERIALIZERS': {
-        'user': 'users.serializers.CustomUserSerializer',
-        'user_create': 'users.serializers.CustomUserCreateSerializer',
-        'current_user': 'users.serializers.CustomUserSerializer',
-    },
-    'PERMISSIONS': {
-        'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
-        'user_list': ['rest_framework.permissions.AllowAny'],
-    },
+    'SEND_ACTIVATION_EMAIL': False,
     'HIDE_USERS': False,
+    'PERMISSIONS': {
+        'user_list': ['rest_framework.permissions.AllowAny'],
+        'user': ['rest_framework.permissions.IsAuthenticated'],
+    },
 }
+
+EMAIL_MAX_LENGTH = 254
+USERNAME_MAX_LENGTH = 150
+NAME_MAX_LENGTH = 200
+SLUG_MAX_LENGTH = 256
+RESERVED_USERNAME_FIELD = 50
