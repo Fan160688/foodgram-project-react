@@ -50,7 +50,7 @@ class AddIngredientRecipeSerializer(serializers.ModelSerializer):
 class RecipeGetSerializer(serializers.ModelSerializer):
     "Сериализатор получения рецепта"
     author = CustomUserSerializer(read_only=True)
-    ingredients = serializers.SerializerMethodField()
+    ingredients = IngredientSerializer()
     tags = TagSerializer(many=True)
     image = Base64ImageField()
     is_favorited = serializers.SerializerMethodField(
