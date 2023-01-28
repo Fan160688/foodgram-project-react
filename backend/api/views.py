@@ -59,6 +59,13 @@ class CurrentUserViewSet(UserViewSet):
             Follow.objects.create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+        if request.method == 'DELETE':
+            if subscription.exists():
+                subscription.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response({'error': 'Вы не подписаны на этого пользователя'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
     @action(
         detail=False,
         permission_classes=(IsAuthenticated,),
