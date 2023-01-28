@@ -73,7 +73,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Recipe"""
 
     author = CurrentUserSerializer(read_only=True)
-    ingredients = IngredientInRecipeSerializer(many=True)
+    ingredients = serializers.SerializerMethodField()
     tags = TagSerializer(many=True, read_only=True)
     is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
@@ -84,6 +84,11 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'tags', 'author', 'ingredients', 'is_favorited',
                   'is_in_shopping_cart', 'name', 'image', 'text',
                   'cooking_time')
+
+    @staticmethod
+    def get_ingredients(obj):
+        ingredients = IngredientInRecipe.objects.filter(recipe_parent=obj)
+        return IngredientInRecipeSerializer(ingredients, many=True).data
 
     def get_is_favorited(self, obj):
         user = self.context['request'].user
@@ -141,7 +146,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         ])
 
     def validate(self, data):
-        ingredients = data['ingredients']
+        ingredients = self.initial_data.get('ingredients')
         ingredients_list = []
         for ingredient in ingredients:
             ingredient_id = ingredient['id']
@@ -199,10 +204,8 @@ class RecipeShortSerializer(serializers.ModelSerializer):
 
 class FollowSerializer(CurrentUserSerializer):
     """Сериализатор для модели Follow"""
-
     recipes = serializers.SerializerMethodField(read_only=True)
     recipes_count = serializers.SerializerMethodField(read_only=True)
-    is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
