@@ -15,7 +15,7 @@ from recipes.models import (
     ShoppingList,
     Tag
 )
-from users.models import User
+from users.models import User, Follow
 from .filters import IngredientSearchFilter, RecipeFilter
 from .serializers import (
     FavoriteSerializer,
@@ -43,20 +43,24 @@ class CurrentUserViewSet(UserViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def subscribe(self, request, pk):
-        author = get_object_or_404(User, id=pk)
-        if request.method != 'POST':
-            request.user.subscribe.remove(author)
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        if not request.user.subscribe.filter(id=pk).exists():
-            request.user.subscribe.add(author)
+        if request.method == 'POST':
             serializer = FollowSerializer(
-                author, context={'request': request}
+                data={
+                    'user': request.user.id,
+                    'author': get_object_or_404(User, id=pk).id
+                },
+                context={'request': request}
             )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(
-            {'errors': 'Вы уже подписаны на данного пользователя'},
-            status=status.HTTP_400_BAD_REQUEST
+        subscription = get_object_or_404(
+            Follow,
+            author=get_object_or_404(User, id=pk),
+            user=request.user
         )
+        self.perform_destroy(subscription)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
         detail=False,
