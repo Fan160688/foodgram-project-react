@@ -1,6 +1,7 @@
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from djoser.views import UserViewSet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticated
@@ -23,16 +24,17 @@ from .serializers import (
     RecipeCreateSerializer,
     RecipeSerializer,
     ShoppingListSerializer,
-    TagSerializer
+    TagSerializer,
+    CurrentUserSerializer
 )
 from .shop_cart import create_shopping_cart
 
 
-class CurrentUserViewSet(viewsets.GenericViewSet):
+class CurrentUserViewSet(UserViewSet):
     """Вьюсет для работы с обьектами класса User и подписки на авторов"""
 
     queryset = User.objects.all()
-    serializer_class = FollowSerializer
+    serializer_class = CurrentUserSerializer
     search_fields = ('username',)
 
     @action(
@@ -47,7 +49,7 @@ class CurrentUserViewSet(viewsets.GenericViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         if not request.user.subscribe.filter(id=pk).exists():
             request.user.subscribe.add(author)
-            serializer = self.serializer_class(
+            serializer =  FollowSerializer(
                 author, context={'request': request}
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
