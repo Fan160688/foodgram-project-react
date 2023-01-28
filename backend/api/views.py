@@ -49,7 +49,7 @@ class CurrentUserViewSet(UserViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         if not request.user.subscribe.filter(id=pk).exists():
             request.user.subscribe.add(author)
-            serializer =  FollowSerializer(
+            serializer = FollowSerializer(
                 author, context={'request': request}
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
