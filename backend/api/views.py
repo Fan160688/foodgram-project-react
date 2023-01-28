@@ -42,25 +42,22 @@ class CurrentUserViewSet(UserViewSet):
         detail=True,
         permission_classes=(IsAuthenticated,)
     )
-    def subscribe(self, request, pk):
+    def subscribe(self, request, id):
+        user = request.user
+        author = get_object_or_404(User, id=id)
+        subscription = Follow.objects.filter(
+            user=user, author=author)
+
         if request.method == 'POST':
-            serializer = FollowSerializer(
-                data={
-                    'user': request.user.id,
-                    'author': get_object_or_404(User, id=pk).id
-                },
-                context={'request': request}
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
+            if subscription.exists():
+                return Response({'error': 'Вы уже подписаны'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if user == author:
+                return Response({'error': 'Невозможно подписаться на себя'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            serializer = FollowSerializer(author, context={'request': request})
+            Follow.objects.create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        subscription = get_object_or_404(
-            Follow,
-            author=get_object_or_404(User, id=pk),
-            user=request.user
-        )
-        self.perform_destroy(subscription)
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
         detail=False,
