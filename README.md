@@ -2,6 +2,7 @@
 
 ![Build Status](https://github.com/fan160688/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
 
+
 Адрес проекта: http://51.250.78.57
 Почта: alex@yandex.ru
 Пароль: 4770
